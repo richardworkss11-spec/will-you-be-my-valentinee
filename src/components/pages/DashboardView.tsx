@@ -5,8 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import FloatingHearts from "@/components/ui/FloatingHearts";
-import { signOut, reactToValentine, updateAvatar, updateUsername, checkUsernameAvailability } from "@/lib/actions";
-import { createClient } from "@/lib/supabase/client";
+import { signOut, reactToValentine, updateAvatar, updateUsername, checkUsernameAvailability, uploadFile } from "@/lib/actions";
 import type { Profile, DashboardValentine } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -253,19 +252,12 @@ export default function DashboardView({
     setLocalAvatarUrl(URL.createObjectURL(file));
 
     try {
-      const supabase = createClient();
-      const fileName = `${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("profile-avatars")
-        .upload(fileName, file);
+      const fd = new FormData();
+      fd.append("file", file);
+      const uploadResult = await uploadFile(fd, "profile-avatars");
+      if (uploadResult.error) throw new Error(uploadResult.error);
 
-      if (uploadError) throw new Error("Upload failed");
-
-      const { data: urlData } = supabase.storage
-        .from("profile-avatars")
-        .getPublicUrl(fileName);
-
-      await updateAvatar(urlData.publicUrl);
+      await updateAvatar(uploadResult.url!);
       router.refresh();
     } catch {
       setLocalAvatarUrl(profile.avatar_url);

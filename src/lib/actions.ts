@@ -3,6 +3,77 @@
 import { createClient } from "@/lib/supabase/server";
 import type { ValentineRecord } from "./types";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
+export async function uploadFile(
+  formData: globalThis.FormData,
+  bucket: "valentine-photos" | "profile-avatars"
+) {
+  const file = formData.get("file") as File | null;
+
+  if (!file || file.size === 0) {
+    return { error: "No file provided", url: null };
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return { error: "Only JPEG, PNG, GIF, and WebP images are allowed", url: null };
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return { error: "File must be under 5MB", url: null };
+  }
+
+  // Verify magic bytes to prevent MIME spoofing
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (!isValidImageSignature(bytes)) {
+    return { error: "File does not appear to be a valid image", url: null };
+  }
+
+  const supabase = await createClient();
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const safeExt = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext) ? ext : "jpg";
+  const fileName = `${Date.now()}-${crypto.randomUUID()}.${safeExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, file);
+
+  if (uploadError) {
+    return { error: "Upload failed", url: null };
+  }
+
+  const { data: urlData } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(fileName);
+
+  return { error: null, url: urlData.publicUrl };
+}
+
+function isValidImageSignature(bytes: Uint8Array): boolean {
+  if (bytes.length < 4) return false;
+
+  // JPEG: FF D8 FF
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return true;
+  // PNG: 89 50 4E 47
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return true;
+  // GIF: 47 49 46 38
+  if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return true;
+  // WebP: RIFF....WEBP
+  if (
+    bytes.length >= 12 &&
+    bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+    bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+  ) return true;
+
+  return false;
+}
+
 const RESERVED_USERNAMES = [
   "setup",
   "dashboard",
@@ -17,23 +88,40 @@ const RESERVED_USERNAMES = [
 export async function submitValentine(data: ValentineRecord) {
   const supabase = await createClient();
 
+  // Input length validation
+  const name = data.name.trim().slice(0, 100);
+  const instagram = data.instagram.trim().slice(0, 50);
+  const reason = data.reason.trim().slice(0, 2000);
+  const message = data.message.trim().slice(0, 5000);
+  const location = data.location.trim().slice(0, 100);
+  const song = data.song.trim().slice(0, 200);
+  const wallDisplayName = data.wall_display_name.trim().slice(0, 100);
+
+  if (!name) {
+    return { error: "Name is required" };
+  }
+
+  if (!data.date) {
+    return { error: "Date is required" };
+  }
+
   const { error } = await supabase.from("valentines").insert({
-    name: data.name.trim(),
-    instagram: data.instagram.trim(),
+    name,
+    instagram,
     date: data.date,
-    reason: data.reason.trim(),
+    reason,
     photo_url: data.photo_url,
-    message: data.message.trim(),
-    location: data.location.trim(),
-    song: data.song.trim(),
+    message,
+    location,
+    song,
     profile_id: data.profile_id,
     show_on_wall: data.show_on_wall,
-    wall_display_name: data.wall_display_name.trim(),
+    wall_display_name: wallDisplayName || name,
     photo_public: data.photo_public,
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: "Failed to submit valentine. Please try again." };
   }
 
   return { error: null };
@@ -52,6 +140,12 @@ export async function createProfile(data: {
 
   if (!user) {
     return { error: "Not authenticated" };
+  }
+
+  // Validate display name
+  const displayName = data.displayName.trim().slice(0, 50);
+  if (!displayName) {
+    return { error: "Display name is required" };
   }
 
   // Validate username format
@@ -81,13 +175,13 @@ export async function createProfile(data: {
 
   const { error } = await supabase.from("profiles").insert({
     user_id: user.id,
-    display_name: data.displayName.trim(),
+    display_name: displayName,
     username: data.username.toLowerCase(),
     avatar_url: data.avatarUrl,
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: "Failed to create profile. Please try again." };
   }
 
   return { error: null };
@@ -160,7 +254,7 @@ export async function reactToValentine(valentineId: string, reaction: string | n
     .eq("id", valentineId);
 
   if (error) {
-    return { error: error.message };
+    return { error: "Failed to save reaction. Please try again." };
   }
 
   return { error: null };
@@ -183,7 +277,7 @@ export async function updateAvatar(avatarUrl: string) {
     .eq("user_id", user.id);
 
   if (error) {
-    return { error: error.message };
+    return { error: "Failed to update avatar. Please try again." };
   }
 
   return { error: null };
@@ -254,7 +348,7 @@ export async function updateUsername(newUsername: string) {
     .eq("id", profile.id);
 
   if (error) {
-    return { error: error.message };
+    return { error: "Failed to update username. Please try again." };
   }
 
   return { error: null };

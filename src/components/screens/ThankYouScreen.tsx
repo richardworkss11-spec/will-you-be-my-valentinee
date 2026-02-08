@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import html2canvas from "html2canvas-pro";
 
 interface ThankYouScreenProps {
   profileName?: string;
@@ -17,6 +16,7 @@ export default function ThankYouScreen({ profileName, username, senderName }: Th
 
   const generateCardImage = async (): Promise<Blob | null> => {
     if (!cardRef.current) return null;
+    const { default: html2canvas } = await import("html2canvas-pro");
     const canvas = await html2canvas(cardRef.current, {
       backgroundColor: null,
       scale: 3,
@@ -28,6 +28,7 @@ export default function ThankYouScreen({ profileName, username, senderName }: Th
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
+    const { default: html2canvas } = await import("html2canvas-pro");
     const canvas = await html2canvas(cardRef.current, {
       backgroundColor: null,
       scale: 3,

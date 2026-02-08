@@ -16,8 +16,9 @@ export default function PhotoUpload({ onFileSelect }: PhotoUploadProps) {
     (file: File) => {
       setError(null);
 
-      if (!file.type.startsWith("image/")) {
-        setError("Please upload an image file");
+      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        setError("Only JPEG, PNG, GIF, and WebP images are allowed");
         return;
       }
 

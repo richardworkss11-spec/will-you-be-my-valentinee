@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { createProfile, checkUsernameAvailability } from "@/lib/actions";
-import { createClient } from "@/lib/supabase/client";
+import { createProfile, checkUsernameAvailability, uploadFile } from "@/lib/actions";
 import FloatingHearts from "@/components/ui/FloatingHearts";
 
 interface ProfileSetupFormProps {
@@ -85,19 +84,11 @@ export default function ProfileSetupForm({
       let finalAvatarUrl = initialAvatar;
 
       if (avatarFile) {
-        const supabase = createClient();
-        const fileName = `${Date.now()}-${avatarFile.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from("profile-avatars")
-          .upload(fileName, avatarFile);
-
-        if (uploadError) throw new Error("Avatar upload failed");
-
-        const { data: urlData } = supabase.storage
-          .from("profile-avatars")
-          .getPublicUrl(fileName);
-
-        finalAvatarUrl = urlData.publicUrl;
+        const fd = new FormData();
+        fd.append("file", avatarFile);
+        const uploadResult = await uploadFile(fd, "profile-avatars");
+        if (uploadResult.error) throw new Error(uploadResult.error);
+        finalAvatarUrl = uploadResult.url;
       }
 
       const result = await createProfile({

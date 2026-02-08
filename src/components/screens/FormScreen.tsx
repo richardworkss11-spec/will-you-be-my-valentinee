@@ -4,8 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import PhotoUpload from "@/components/ui/PhotoUpload";
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
-import { createClient } from "@/lib/supabase/client";
-import { submitValentine } from "@/lib/actions";
+import { submitValentine, uploadFile } from "@/lib/actions";
 import type { FormData } from "@/lib/types";
 
 interface FormScreenProps {
@@ -74,19 +73,11 @@ export default function FormScreen({
       let photoUrl: string | null = null;
 
       if (formData.photo) {
-        const supabase = createClient();
-        const fileName = `${Date.now()}-${formData.photo.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from("valentine-photos")
-          .upload(fileName, formData.photo);
-
-        if (uploadError) throw new Error("Photo upload failed");
-
-        const { data: urlData } = supabase.storage
-          .from("valentine-photos")
-          .getPublicUrl(fileName);
-
-        photoUrl = urlData.publicUrl;
+        const fd = new FormData();
+        fd.append("file", formData.photo);
+        const uploadResult = await uploadFile(fd, "valentine-photos");
+        if (uploadResult.error) throw new Error(uploadResult.error);
+        photoUrl = uploadResult.url;
       }
 
       const result = await submitValentine({
