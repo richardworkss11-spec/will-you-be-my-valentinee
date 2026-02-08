@@ -10,6 +10,9 @@ const initialFormData: FormData = {
   reason: "",
   photo: null,
   message: "",
+  showOnWall: false,
+  wallDisplayName: "",
+  photoPublic: false,
 };
 
 export function useScreenState() {

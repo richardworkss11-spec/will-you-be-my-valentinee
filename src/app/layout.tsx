@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Dancing_Script, Quicksand } from "next/font/google";
+import TopBanner from "@/components/ui/TopBanner";
 import "./globals.css";
 
 const dancingScript = Dancing_Script({
@@ -15,8 +16,9 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: "Will you be my Valentine?",
-  description: "A special question just for you...",
+  title: "Valentine's Day | Create Your Valentine Page",
+  description:
+    "Create your personal valentine page, share your link, and collect valentines from the people who love you!",
 };
 
 export default function RootLayout({
@@ -29,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${dancingScript.variable} ${quicksand.variable} antialiased`}
       >
+        <TopBanner />
         {children}
       </body>
     </html>

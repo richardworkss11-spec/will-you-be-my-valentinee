@@ -1,8 +1,14 @@
 "use client";
 
 import { motion } from "motion/react";
+import Link from "next/link";
 
-export default function ThankYouScreen() {
+interface ThankYouScreenProps {
+  profileName?: string;
+  username?: string;
+}
+
+export default function ThankYouScreen({ profileName, username }: ThankYouScreenProps) {
   return (
     <motion.div
       className="flex flex-col items-center justify-center min-h-dvh gap-6 px-4 relative z-10"
@@ -28,18 +34,37 @@ export default function ThankYouScreen() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
       >
-        Wait for my cute message!
+        {profileName
+          ? `Your valentine has been sent to ${profileName}!`
+          : "Your valentine has been sent!"}
         <br />
-        I promise it&apos;ll be worth it 💌
+        {profileName
+          ? `${profileName} is going to love it 💌`
+          : "I promise it'll be worth it 💌"}
       </motion.p>
 
+      {username && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <Link
+            href={`/${username}/wall`}
+            className="inline-block rounded-full border-2 border-rose-light px-6 py-3 text-rose-dark font-semibold hover:bg-rose-light/20 transition-colors"
+          >
+            View {profileName}&apos;s Wall of Love
+          </Link>
+        </motion.div>
+      )}
+
       <motion.div
-        className="mt-8 text-rose-dark/40 text-sm"
+        className="mt-4 text-rose-dark/40 text-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
+        transition={{ delay: 1.2 }}
       >
-        Check your email soon...
+        Spread the love this Valentine&apos;s Day!
       </motion.div>
     </motion.div>
   );

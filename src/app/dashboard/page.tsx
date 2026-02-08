@@ -1,0 +1,15 @@
+import { getCurrentUser, getProfileByUserId, getAllValentinesForOwner } from "@/lib/queries";
+import { redirect } from "next/navigation";
+import DashboardView from "@/components/pages/DashboardView";
+
+export default async function DashboardPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/");
+
+  const profile = await getProfileByUserId(user.id);
+  if (!profile) redirect("/setup");
+
+  const valentines = await getAllValentinesForOwner(profile.id);
+
+  return <DashboardView profile={profile} valentines={valentines} />;
+}

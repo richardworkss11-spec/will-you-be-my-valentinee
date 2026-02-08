@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import PhotoUpload from "@/components/ui/PhotoUpload";
-import { supabase } from "@/lib/supabase";
+import ToggleSwitch from "@/components/ui/ToggleSwitch";
+import { createClient } from "@/lib/supabase/client";
 import { submitValentine } from "@/lib/actions";
 import type { FormData } from "@/lib/types";
 
@@ -11,16 +12,44 @@ interface FormScreenProps {
   formData: FormData;
   updateField: <K extends keyof FormData>(field: K, value: FormData[K]) => void;
   onSuccess: () => void;
+  profileId: string;
+  profileName: string;
 }
 
 const fields = [
-  { key: "name" as const, label: "Your Name", type: "text", placeholder: "What should I call you?" },
-  { key: "email" as const, label: "Your Email", type: "email", placeholder: "So I can write to you..." },
-  { key: "date" as const, label: "Our Special Date", type: "date", placeholder: "" },
-  { key: "reason" as const, label: "Why Me?", type: "textarea", placeholder: "What made you say yes?" },
+  {
+    key: "name" as const,
+    label: "Your Name",
+    type: "text",
+    placeholder: "What should I call you?",
+  },
+  {
+    key: "email" as const,
+    label: "Your Email",
+    type: "email",
+    placeholder: "So I can write to you...",
+  },
+  {
+    key: "date" as const,
+    label: "Our Special Date",
+    type: "date",
+    placeholder: "",
+  },
+  {
+    key: "reason" as const,
+    label: "Why Me?",
+    type: "textarea",
+    placeholder: "What made you say yes?",
+  },
 ];
 
-export default function FormScreen({ formData, updateField, onSuccess }: FormScreenProps) {
+export default function FormScreen({
+  formData,
+  updateField,
+  onSuccess,
+  profileId,
+  profileName,
+}: FormScreenProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,6 +68,7 @@ export default function FormScreen({ formData, updateField, onSuccess }: FormScr
       let photoUrl: string | null = null;
 
       if (formData.photo) {
+        const supabase = createClient();
         const fileName = `${Date.now()}-${formData.photo.name}`;
         const { error: uploadError } = await supabase.storage
           .from("valentine-photos")
@@ -60,6 +90,12 @@ export default function FormScreen({ formData, updateField, onSuccess }: FormScr
         reason: formData.reason,
         photo_url: photoUrl,
         message: formData.message,
+        profile_id: profileId,
+        show_on_wall: formData.showOnWall,
+        wall_display_name: formData.showOnWall
+          ? formData.wallDisplayName || formData.name
+          : formData.name,
+        photo_public: formData.showOnWall ? formData.photoPublic : false,
       });
 
       if (result.error) throw new Error(result.error);
@@ -88,10 +124,7 @@ export default function FormScreen({ formData, updateField, onSuccess }: FormScr
         Tell me about us 💕
       </motion.h2>
 
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-5"
-      >
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5">
         {fields.map((field, i) => (
           <motion.div
             key={field.key}
@@ -150,6 +183,62 @@ export default function FormScreen({ formData, updateField, onSuccess }: FormScr
           />
         </motion.div>
 
+        {/* Privacy Controls */}
+        <motion.div
+          className="rounded-xl border-2 border-rose-light/50 bg-white/60 p-4 space-y-4"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <p className="text-sm font-semibold text-rose-dark">
+            Privacy Settings
+          </p>
+
+          <ToggleSwitch
+            enabled={formData.showOnWall}
+            onToggle={(val) => {
+              updateField("showOnWall", val);
+              if (val && !formData.wallDisplayName) {
+                updateField("wallDisplayName", formData.name);
+              }
+            }}
+            label={`Show my valentine on ${profileName}'s public wall`}
+          />
+
+          <AnimatePresence>
+            {formData.showOnWall && (
+              <motion.div
+                className="space-y-3 pl-1"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div>
+                  <label className="block text-xs text-rose-dark/60 mb-1">
+                    Display name for the wall
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.wallDisplayName}
+                    onChange={(e) =>
+                      updateField("wallDisplayName", e.target.value)
+                    }
+                    placeholder="Secret Admirer, your name, etc."
+                    className="w-full rounded-lg border border-rose-light bg-white/80 px-3 py-2 text-sm text-foreground placeholder:text-rose-dark/30 focus:border-rose focus:outline-none"
+                  />
+                </div>
+
+                <ToggleSwitch
+                  enabled={formData.photoPublic}
+                  onToggle={(val) => updateField("photoPublic", val)}
+                  label="Show my photo on the wall too"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
         {error && (
           <p className="text-red-500 text-sm text-center">{error}</p>
         )}
@@ -162,7 +251,7 @@ export default function FormScreen({ formData, updateField, onSuccess }: FormScr
           whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
         >
           {isSubmitting ? "Sending with love..." : "Send My Valentine 💝"}
         </motion.button>
