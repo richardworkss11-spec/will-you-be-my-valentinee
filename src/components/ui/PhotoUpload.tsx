@@ -18,12 +18,14 @@ export default function PhotoUpload({ onFileSelect }: PhotoUploadProps) {
 
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
-        setError("Only JPEG, PNG, GIF, and WebP images are allowed");
+        const ext = file.name.split(".").pop()?.toUpperCase() || "unknown";
+        setError(`".${ext}" files are not supported. Use JPEG, PNG, GIF, or WebP`);
         return;
       }
 
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
       if (file.size > 5 * 1024 * 1024) {
-        setError("Image must be under 5MB");
+        setError(`Image is too large (${sizeMB}MB). Maximum size is 5MB`);
         return;
       }
 
@@ -82,9 +84,9 @@ export default function PhotoUpload({ onFileSelect }: PhotoUploadProps) {
           onClick={() => inputRef.current?.click()}
         >
           <p className="text-rose-dark/60 text-sm">
-            Drop a cute photo here or click to upload
+            Drop your photo here or click to upload
           </p>
-          <p className="text-rose-dark/40 text-xs mt-1">Max 5MB</p>
+          <p className="text-rose-dark/40 text-xs mt-1">JPEG, PNG, GIF, or WebP — max 5MB</p>
         </div>
       )}
       <input
@@ -97,7 +99,11 @@ export default function PhotoUpload({ onFileSelect }: PhotoUploadProps) {
           if (file) handleFile(file);
         }}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && (
+        <div className="mt-2 px-3 py-2 bg-red-50 border border-red-200 rounded-xl">
+          <p className="text-red-600 text-sm font-medium">{error}</p>
+        </div>
+      )}
     </div>
   );
 }

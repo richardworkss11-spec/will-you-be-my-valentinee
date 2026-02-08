@@ -75,7 +75,7 @@ export default function FormScreen({
         const fd = new FormData();
         fd.append("file", formData.photo);
         const uploadResult = await uploadFile(fd, "valentine-photos");
-        if (uploadResult.error) throw new Error(uploadResult.error);
+        if (uploadResult.error) throw new Error(`Photo upload failed: ${uploadResult.error}`);
         photoUrl = uploadResult.url;
       }
 
@@ -174,7 +174,7 @@ export default function FormScreen({
                   className="pt-4 border-t border-rose-100"
                 >
                   <label className="block text-sm font-bold text-rose-900/80 mb-3 uppercase tracking-wide">
-                    A Cute Photo of Us
+                    Your Photo
                   </label>
                   <PhotoUpload onFileSelect={(file) => updateField("photo", file)} />
                 </motion.div>
