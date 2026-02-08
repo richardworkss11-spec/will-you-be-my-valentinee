@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import HeartExplosion from "@/components/ui/HeartExplosion";
 
@@ -9,17 +8,10 @@ interface CongratsScreenProps {
 }
 
 export default function CongratsScreen({ onContinue }: CongratsScreenProps) {
-  const [showButton, setShowButton] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowButton(true), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div className="flex flex-col items-center justify-center min-h-dvh gap-8 px-4 relative z-10 overflow-hidden">
       {/* Background Burst */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 bg-gradient-radial from-rose-200/50 to-transparent opacity-0 pointer-events-none"
         animate={{ opacity: [0, 1, 0] }}
         transition={{ duration: 1 }}
@@ -47,7 +39,7 @@ export default function CongratsScreen({ onContinue }: CongratsScreenProps) {
           className="font-heading text-6xl sm:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-600 drop-shadow-sm p-4"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
         >
           You said Yes!
         </motion.h1>
@@ -56,38 +48,29 @@ export default function CongratsScreen({ onContinue }: CongratsScreenProps) {
           className="text-2xl sm:text-3xl text-rose-800/80 font-medium max-w-2xl mx-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.4 }}
         >
-          I&apos;m the happiest person in the world! 🥰
+          Now make it special — one last step! ✨
         </motion.p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, height: 0 }}
-        animate={showButton ? { opacity: 1, height: "auto" } : {}}
-        className="overflow-hidden"
+      <motion.button
+        onClick={onContinue}
+        className="mt-4 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-10 py-4 text-xl font-bold text-white shadow-xl cursor-pointer"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
       >
-        <motion.button
-          onClick={onContinue}
-          className="mt-4 rounded-full bg-white px-10 py-4 text-xl font-bold text-rose-600 shadow-xl border-2 border-rose-100 cursor-pointer"
-          whileHover={{ scale: 1.05, backgroundColor: "#fff0f5" }}
-          whileTap={{ scale: 0.95 }}
-          animate={{
-            y: [0, -5, 0],
-            boxShadow: [
-              "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-              "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-              "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-            ]
-          }}
-          transition={{
-            y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-            boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-          }}
+        <motion.span
+          className="flex items-center gap-2"
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
         >
-          Tell me more about you 💌
-        </motion.button>
-      </motion.div>
+          Fill in your valentine 💌
+        </motion.span>
+      </motion.button>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import Link from "next/link";
 
@@ -13,6 +14,29 @@ interface ThankYouScreenProps {
 export default function ThankYouScreen({ profileName, username, senderName }: ThankYouScreenProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  const router = useRouter();
+
+  const wallUrl = username ? `/${username}/wall` : null;
+
+  const redirectToWall = useCallback(() => {
+    if (wallUrl) router.push(wallUrl);
+  }, [wallUrl, router]);
+
+  useEffect(() => {
+    if (!wallUrl) return;
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          redirectToWall();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [wallUrl, redirectToWall]);
 
   const generateCardImage = async (): Promise<Blob | null> => {
     if (!cardRef.current) return null;
@@ -193,28 +217,33 @@ export default function ThankYouScreen({ profileName, username, senderName }: Th
           </div>
         </motion.div>
 
-        {username && (
+        {/* Prominent Wall Link + Auto-redirect */}
+        {wallUrl && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.0 }}
-            className="mt-10"
+            transition={{ delay: 0.6 }}
+            className="mt-8 space-y-3"
           >
             <Link
-              href={`/${username}/wall`}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-white px-8 py-4 text-lg font-bold text-rose-600 shadow-xl transition-all hover:scale-105 hover:bg-rose-50 hover:shadow-2xl border-2 border-rose-100"
+              href={wallUrl}
+              className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold text-xl rounded-full shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300"
             >
-              <span>View Wall of Love</span>
-              <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              <span className="text-2xl">💝</span>
+              <span>View All Valentines</span>
+              <span className="group-hover:translate-x-1 transition-transform text-xl">&rarr;</span>
             </Link>
+            <p className="text-sm text-rose-400">
+              Redirecting to the wall in {countdown}s...
+            </p>
           </motion.div>
         )}
 
         <motion.div
-          className="mt-12 text-rose-400 font-medium tracking-wide text-sm opacity-80"
+          className="mt-8 text-rose-400 font-medium tracking-wide text-sm opacity-80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
+          transition={{ delay: 1.0 }}
         >
           Spread the love this Valentine&apos;s Day! 💕
         </motion.div>
