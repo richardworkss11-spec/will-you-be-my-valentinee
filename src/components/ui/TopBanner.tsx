@@ -13,7 +13,7 @@ export default function TopBanner() {
   const isDashboard = pathname === "/dashboard";
 
   return (
-    <div className="relative z-50 bg-rose-dark/90 backdrop-blur-sm text-white text-center py-2 px-4 text-sm">
+    <div className="fixed top-0 left-0 w-full z-50 bg-rose-dark/95 backdrop-blur-sm text-white text-center py-3 px-4 text-sm font-medium shadow-md">
       {isDashboard ? (
         <span>
           💝 Share your link and collect valentines!
@@ -21,7 +21,7 @@ export default function TopBanner() {
       ) : (
         <span>
           💝 Want your own valentine page?{" "}
-          <Link href="/" className="underline font-semibold hover:text-rose-light transition-colors">
+          <Link href="/" className="underline decoration-white/50 underline-offset-4 hover:decoration-white hover:text-rose-light transition-all">
             Create yours free
           </Link>
         </span>

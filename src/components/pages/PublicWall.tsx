@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import FloatingHearts from "@/components/ui/FloatingHearts";
+import ValentineCard from "@/components/ui/ValentineCard";
 import type { Profile, WallValentine } from "@/lib/types";
 
 interface PublicWallProps {
@@ -13,106 +14,93 @@ interface PublicWallProps {
 
 export default function PublicWall({ profile, valentines }: PublicWallProps) {
   return (
-    <main className="relative min-h-dvh overflow-hidden">
+    <main className="relative min-h-dvh bg-gradient-to-b from-rose-50 to-rose-100 overflow-x-hidden">
       <FloatingHearts />
 
-      <div className="relative z-10 max-w-4xl mx-auto py-8 px-4">
-        {/* Header */}
+      {/* Hero Section */}
+      <div className="relative z-10 pt-16 pb-12 px-4 text-center">
         <motion.div
-          className="flex flex-col items-center gap-3 mb-8"
-          initial={{ opacity: 0, y: -20 }}
+          className="flex flex-col items-center gap-4"
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-rose-light shadow-lg">
-            {profile.avatar_url ? (
-              <Image
-                src={profile.avatar_url}
-                alt={profile.display_name}
-                width={80}
-                height={80}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-rose-light/30 flex items-center justify-center text-3xl">
-                💝
-              </div>
-            )}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-rose-400 to-pink-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+            <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-xl">
+              {profile.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt={profile.display_name}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-rose-200 flex items-center justify-center text-5xl">
+                  💝
+                </div>
+              )}
+            </div>
           </div>
-          <h1 className="font-heading text-3xl sm:text-4xl font-bold text-rose-dark text-center">
-            {profile.display_name}&apos;s Wall of Love
-          </h1>
-          <Link
-            href={`/${profile.username}`}
-            className="text-sm text-rose hover:text-rose-dark transition-colors"
-          >
-            Send {profile.display_name} a valentine →
-          </Link>
-        </motion.div>
-
-        {/* Wall Grid */}
-        {valentines.length === 0 ? (
-          <motion.div
-            className="text-center py-16"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="text-6xl mb-4">💌</div>
-            <p className="text-rose-dark/60 text-lg">
-              No public valentines yet. Be the first!
+          
+          <div className="space-y-1">
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-600 drop-shadow-sm">
+              {profile.display_name}&apos;s Wall
+            </h1>
+            <p className="text-rose-800/70 text-lg font-medium">
+              Collect all your valentine&apos;s love here! 💕
             </p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+          >
             <Link
               href={`/${profile.username}`}
-              className="inline-block mt-4 rounded-full bg-rose px-6 py-3 text-white font-semibold hover:bg-rose-dark transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-white/80 hover:bg-white text-rose-600 font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-rose-200 backdrop-blur-sm"
             >
+              <span>💌</span>
               Send a Valentine
             </Link>
           </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Masonry Grid */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        {valentines.length === 0 ? (
+          <motion.div
+            className="flex flex-col items-center justify-center py-20 text-center bg-white/30 backdrop-blur-sm rounded-3xl border border-white/50 shadow-sm max-w-2xl mx-auto"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="text-8xl mb-6 animate-bounce">🥺</div>
+            <h3 className="text-2xl font-bold text-rose-800 mb-2">No valentines yet!</h3>
+            <p className="text-rose-600/80 text-lg mb-8 max-w-md">
+              Be the first person to show some love to {profile.display_name}. It only takes a minute!
+            </p>
+            <Link
+              href={`/${profile.username}`}
+              className="px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+            >
+              Send Love Now 💖
+            </Link>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
             {valentines.map((v, i) => (
-              <motion.div
-                key={v.id}
-                className="rounded-xl border-2 border-rose-light bg-white/80 p-4 backdrop-blur-sm"
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  {v.photo_url ? (
-                    <Image
-                      src={v.photo_url}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-rose-light/30 flex items-center justify-center text-lg">
-                      💕
-                    </div>
-                  )}
-                  <p className="font-semibold text-rose-dark">
-                    {v.wall_display_name}
-                  </p>
-                </div>
-
-                {v.message && (
-                  <p className="text-sm text-rose-dark/70 italic mb-2">
-                    &ldquo;{v.message}&rdquo;
-                  </p>
-                )}
-
-                {v.reason && (
-                  <p className="text-xs text-rose-dark/50">
-                    {v.reason}
-                  </p>
-                )}
-              </motion.div>
+              <ValentineCard key={v.id} valentine={v} index={i} />
             ))}
           </div>
         )}
       </div>
+
+      {/* Footer Decoration */}
+      <div className="fixed bottom-0 left-0 w-full h-24 bg-gradient-to-t from-rose-100 to-transparent pointer-events-none z-20" />
     </main>
   );
 }
