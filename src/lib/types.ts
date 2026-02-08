@@ -9,9 +9,6 @@ export interface FormData {
   message: string;
   location: string;
   song: string;
-  showOnWall: boolean;
-  wallDisplayName: string;
-  photoPublic: boolean;
 }
 
 export interface ValentineRecord {
@@ -24,9 +21,6 @@ export interface ValentineRecord {
   location: string;
   song: string;
   profile_id: string;
-  show_on_wall: boolean;
-  wall_display_name: string;
-  photo_public: boolean;
 }
 
 export interface Profile {
@@ -69,8 +63,5 @@ export interface DashboardValentine {
   location: string;
   song: string;
   reaction: string | null;
-  show_on_wall: boolean;
-  wall_display_name: string;
-  photo_public: boolean;
   created_at: string;
 }

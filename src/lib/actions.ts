@@ -18,20 +18,26 @@ export async function uploadFile(
   const file = formData.get("file") as File | null;
 
   if (!file || file.size === 0) {
+    console.error("[uploadFile] No file provided");
     return { error: "No file provided", url: null };
   }
 
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    console.error("[uploadFile] Invalid type:", file.type);
     return { error: "Only JPEG, PNG, GIF, and WebP images are allowed", url: null };
   }
 
   if (file.size > MAX_FILE_SIZE) {
+    console.error("[uploadFile] File too large:", file.size);
     return { error: "File must be under 5MB", url: null };
   }
 
-  // Verify magic bytes to prevent MIME spoofing
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  // Read buffer ONCE — use it for both validation and upload
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+
   if (!isValidImageSignature(bytes)) {
+    console.error("[uploadFile] Invalid magic bytes:", bytes.slice(0, 12));
     return { error: "File does not appear to be a valid image", url: null };
   }
 
@@ -40,11 +46,15 @@ export async function uploadFile(
   const safeExt = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext) ? ext : "jpg";
   const fileName = `${Date.now()}-${crypto.randomUUID()}.${safeExt}`;
 
+  // Upload the buffer directly (not the consumed file)
   const { error: uploadError } = await supabase.storage
     .from(bucket)
-    .upload(fileName, file);
+    .upload(fileName, buffer, {
+      contentType: file.type,
+    });
 
   if (uploadError) {
+    console.error("[uploadFile] Supabase error:", uploadError.message);
     return { error: "Upload failed", url: null };
   }
 
@@ -95,7 +105,6 @@ export async function submitValentine(data: ValentineRecord) {
   const message = data.message.trim().slice(0, 5000);
   const location = data.location.trim().slice(0, 100);
   const song = data.song.trim().slice(0, 200);
-  const wallDisplayName = data.wall_display_name.trim().slice(0, 100);
 
   if (!name) {
     return { error: "Name is required" };
@@ -107,6 +116,7 @@ export async function submitValentine(data: ValentineRecord) {
 
   const { error } = await supabase.from("valentines").insert({
     name,
+    email: "",
     instagram,
     date: data.date,
     reason,
@@ -115,12 +125,13 @@ export async function submitValentine(data: ValentineRecord) {
     location,
     song,
     profile_id: data.profile_id,
-    show_on_wall: data.show_on_wall,
-    wall_display_name: wallDisplayName || name,
-    photo_public: data.photo_public,
+    show_on_wall: true,
+    wall_display_name: name,
+    photo_public: true,
   });
 
   if (error) {
+    console.error("[submitValentine]", error.message, error.code);
     return { error: "Failed to submit valentine. Please try again." };
   }
 

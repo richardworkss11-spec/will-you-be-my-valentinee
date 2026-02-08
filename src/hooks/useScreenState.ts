@@ -12,9 +12,6 @@ const initialFormData: FormData = {
   message: "",
   location: "",
   song: "",
-  showOnWall: false,
-  wallDisplayName: "",
-  photoPublic: false,
 };
 
 export function useScreenState() {

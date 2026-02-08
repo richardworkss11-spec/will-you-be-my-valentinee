@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import PhotoUpload from "@/components/ui/PhotoUpload";
-import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import { submitValentine, uploadFile } from "@/lib/actions";
 import type { FormData } from "@/lib/types";
 
@@ -90,11 +89,6 @@ export default function FormScreen({
         location: formData.location,
         song: formData.song,
         profile_id: profileId,
-        show_on_wall: formData.showOnWall,
-        wall_display_name: formData.showOnWall
-          ? formData.wallDisplayName || formData.name
-          : formData.name,
-        photo_public: formData.showOnWall ? formData.photoPublic : false,
       });
 
       if (result.error) throw new Error(result.error);
@@ -219,63 +213,6 @@ export default function FormScreen({
                   />
                 </motion.div>
 
-                {/* Privacy Controls */}
-                <motion.div
-                  className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5 space-y-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">🔒</span>
-                    <p className="text-sm font-bold text-rose-900 uppercase tracking-wide">
-                      Privacy Settings
-                    </p>
-                  </div>
-
-                  <ToggleSwitch
-                    enabled={formData.showOnWall}
-                    onToggle={(val) => {
-                      updateField("showOnWall", val);
-                      if (val && !formData.wallDisplayName) {
-                        updateField("wallDisplayName", formData.name);
-                      }
-                    }}
-                    label={`Show my valentine on ${profileName}'s public wall`}
-                  />
-
-                  <AnimatePresence>
-                    {formData.showOnWall && (
-                      <motion.div
-                        className="space-y-4 pl-1 pt-2"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                      >
-                        <div>
-                          <label className="block text-xs font-semibold text-rose-700/70 mb-1.5 uppercase tracking-wider">
-                            Display name for the wall
-                          </label>
-                          <input
-                            type="text"
-                            value={formData.wallDisplayName}
-                            onChange={(e) =>
-                              updateField("wallDisplayName", e.target.value)
-                            }
-                            placeholder="Secret Admirer, your name, etc."
-                            className="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-foreground focus:border-rose-400 focus:outline-none"
-                          />
-                        </div>
-
-                        <ToggleSwitch
-                          enabled={formData.photoPublic}
-                          onToggle={(val) => updateField("photoPublic", val)}
-                          label="Show my photo on the wall too"
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
               </div>
             </motion.div>
           </div>

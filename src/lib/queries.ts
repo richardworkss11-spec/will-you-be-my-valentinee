@@ -42,19 +42,17 @@ export async function getWallValentines(
   const { data } = await supabase
     .from("valentines")
     .select(
-      "id, wall_display_name, photo_url, photo_public, message, reason, date, location, song, reaction, created_at"
+      "id, name, wall_display_name, photo_url, message, reason, date, location, song, reaction, created_at"
     )
     .eq("profile_id", profileId)
-    .eq("show_on_wall", true)
     .order("created_at", { ascending: false });
 
   if (!data) return [];
 
-  // Null out photo_url where sender didn't opt in
   return data.map((v) => ({
     id: v.id,
-    wall_display_name: v.wall_display_name,
-    photo_url: v.photo_public ? v.photo_url : null,
+    wall_display_name: v.wall_display_name || v.name,
+    photo_url: v.photo_url,
     message: v.message,
     reason: v.reason,
     date: v.date,
