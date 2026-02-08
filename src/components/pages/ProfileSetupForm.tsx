@@ -209,7 +209,7 @@ export default function ProfileSetupForm({
                 transition={{ delay: 0.5 }}
               >
                 <label className="block text-sm font-bold text-rose-900/80 mb-2 uppercase tracking-wide">
-                  Your Unique Link
+                  Username
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
@@ -259,7 +259,7 @@ export default function ProfileSetupForm({
                         {usernameStatus.checking
                           ? "Checking availability..."
                           : usernameStatus.available
-                          ? `${window.location.host}/${username}`
+                          ? `Your page: ${window.location.host}/${username}`
                           : usernameStatus.error}
                       </p>
                     </motion.div>

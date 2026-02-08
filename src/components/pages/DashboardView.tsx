@@ -400,23 +400,10 @@ export default function DashboardView({
                 </p>
                 <div className="pt-4 flex flex-wrap justify-center sm:justify-start gap-3">
                   <a
-                    href={`/${profile.username}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-rose-600 font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all text-sm sm:text-base"
-                  >
-                    <span>View Public Page</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                      <polyline points="15 3 21 3 21 9" />
-                      <line x1="10" y1="14" x2="21" y2="3" />
-                    </svg>
-                  </a>
-                  <a
                     href={`/${profile.username}/wall`}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-rose-950 text-white font-bold border-2 border-white/20 hover:bg-rose-900 hover:scale-105 shadow-lg transition-all text-sm sm:text-base"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 text-white font-bold border-2 border-white/30 hover:bg-white/30 hover:scale-105 shadow-lg transition-all text-sm sm:text-base backdrop-blur-sm"
                   >
-                    View Public Wall
+                    View All Invitations
                   </a>
                 </div>
               </div>
@@ -428,7 +415,7 @@ export default function DashboardView({
                 {!editingUsername ? (
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-pink-200 text-[11px] font-semibold uppercase tracking-widest mb-1">Your Link</p>
+                      <p className="text-pink-200 text-[11px] font-semibold uppercase tracking-widest mb-1">Username</p>
                       <p className="text-white font-mono text-lg font-bold truncate drop-shadow-sm">/{profile.username}</p>
                     </div>
                     {usernameChangesLeft > 0 ? (
@@ -517,8 +504,8 @@ export default function DashboardView({
           >
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-bold text-rose-900">Share Your Link</h3>
-                <p className="text-sm text-rose-700/70">Send this to your friends to get valentines!</p>
+                <h3 className="text-lg font-bold text-rose-900">Share this link</h3>
+                <p className="text-sm text-rose-700/70">Ask people to be your valentine! Send them this link and they can fill out a valentine for you.</p>
               </div>
 
               <div className="bg-white/80 rounded-2xl p-2 pl-4 border border-rose-100 flex items-center justify-between gap-2 shadow-inner group transition-colors hover:border-rose-300">
