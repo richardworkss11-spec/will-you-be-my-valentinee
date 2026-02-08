@@ -5,11 +5,13 @@ import type { Screen, FormData } from "@/lib/types";
 
 const initialFormData: FormData = {
   name: "",
-  email: "",
+  instagram: "",
   date: "",
   reason: "",
   photo: null,
   message: "",
+  location: "",
+  song: "",
   showOnWall: false,
   wallDisplayName: "",
   photoPublic: false,

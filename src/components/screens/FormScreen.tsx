@@ -24,16 +24,22 @@ const fields = [
     placeholder: "What should I call you?",
   },
   {
-    key: "email" as const,
-    label: "Your Email",
-    type: "email",
-    placeholder: "So I can write to you...",
+    key: "instagram" as const,
+    label: "Your Instagram",
+    type: "text",
+    placeholder: "@yourhandle",
   },
   {
     key: "date" as const,
     label: "Our Special Date",
     type: "date",
     placeholder: "",
+  },
+  {
+    key: "location" as const,
+    label: "Where Are You From? \ud83d\udccd",
+    type: "text",
+    placeholder: "City, Country",
   },
   {
     key: "reason" as const,
@@ -57,8 +63,8 @@ export default function FormScreen({
     e.preventDefault();
     setError(null);
 
-    if (!formData.name.trim() || !formData.email.trim() || !formData.date) {
-      setError("Please fill in your name, email, and date");
+    if (!formData.name.trim() || !formData.date) {
+      setError("Please fill in your name and date");
       return;
     }
 
@@ -85,11 +91,13 @@ export default function FormScreen({
 
       const result = await submitValentine({
         name: formData.name,
-        email: formData.email,
+        instagram: formData.instagram,
         date: formData.date,
         reason: formData.reason,
         photo_url: photoUrl,
         message: formData.message,
+        location: formData.location,
+        song: formData.song,
         profile_id: profileId,
         show_on_wall: formData.showOnWall,
         wall_display_name: formData.showOnWall
@@ -184,6 +192,23 @@ export default function FormScreen({
                     A Cute Photo of Us
                   </label>
                   <PhotoUpload onFileSelect={(file) => updateField("photo", file)} />
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.65 }}
+                >
+                  <label className="block text-sm font-bold text-rose-900/80 mb-2 uppercase tracking-wide">
+                    A Song Dedicated to Me 🎵
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.song}
+                    onChange={(e) => updateField("song", e.target.value)}
+                    placeholder="Song name + artist (e.g., Perfect by Ed Sheeran)"
+                    className="w-full rounded-xl border border-rose-200 bg-white/50 px-4 py-3 text-lg text-rose-950 placeholder:text-rose-900/20 focus:border-rose-400 focus:bg-white focus:ring-4 focus:ring-rose-100 transition-all outline-none"
+                  />
                 </motion.div>
 
                 <motion.div

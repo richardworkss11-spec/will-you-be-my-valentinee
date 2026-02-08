@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,33 @@ interface PublicWallProps {
 }
 
 export default function PublicWall({ profile, valentines }: PublicWallProps) {
+  const [shared, setShared] = useState(false);
+  const count = valentines.length;
+
+  const wallUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/${profile.username}/wall`
+    : `/${profile.username}/wall`;
+
+  const shareText = `Check out ${profile.display_name}'s Wall of Love! 💝 ${count} valentine${count !== 1 ? "s" : ""} and counting!`;
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${profile.display_name}'s Wall of Love`,
+          text: shareText,
+          url: wallUrl,
+        });
+        return;
+      } catch {
+        // User cancelled or share failed, fall through to copy
+      }
+    }
+    await navigator.clipboard.writeText(`${shareText} ${wallUrl}`);
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
+  };
+
   return (
     <main className="relative min-h-dvh bg-gradient-to-b from-rose-50 to-rose-100 overflow-x-hidden">
       <FloatingHearts />
@@ -43,7 +71,7 @@ export default function PublicWall({ profile, valentines }: PublicWallProps) {
               )}
             </div>
           </div>
-          
+
           <div className="space-y-1">
             <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-600 drop-shadow-sm">
               {profile.display_name}&apos;s Wall
@@ -53,7 +81,22 @@ export default function PublicWall({ profile, valentines }: PublicWallProps) {
             </p>
           </div>
 
+          {/* Valentine Count Badge */}
+          {count > 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-rose-200 shadow-md"
+            >
+              <span className="text-lg">💌</span>
+              <span className="text-rose-700 font-bold text-lg">{count}</span>
+              <span className="text-rose-500/80 font-medium text-sm">valentine{count !== 1 ? "s" : ""} received</span>
+            </motion.div>
+          )}
+
           <motion.div
+            className="flex flex-wrap items-center justify-center gap-3"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
@@ -65,6 +108,26 @@ export default function PublicWall({ profile, valentines }: PublicWallProps) {
               <span>💌</span>
               Send a Valentine
             </Link>
+
+            <button
+              onClick={handleShare}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              {shared ? (
+                <>Copied!</>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                  </svg>
+                  Share Wall
+                </>
+              )}
+            </button>
           </motion.div>
         </motion.div>
       </div>

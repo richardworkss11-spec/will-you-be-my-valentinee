@@ -42,7 +42,7 @@ export async function getWallValentines(
   const { data } = await supabase
     .from("valentines")
     .select(
-      "id, wall_display_name, photo_url, photo_public, message, reason, date, created_at"
+      "id, wall_display_name, photo_url, photo_public, message, reason, date, location, song, reaction, created_at"
     )
     .eq("profile_id", profileId)
     .eq("show_on_wall", true)
@@ -58,6 +58,9 @@ export async function getWallValentines(
     message: v.message,
     reason: v.reason,
     date: v.date,
+    location: v.location ?? "",
+    song: v.song ?? "",
+    reaction: v.reaction ?? null,
     created_at: v.created_at,
   }));
 }

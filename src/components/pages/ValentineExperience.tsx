@@ -50,7 +50,7 @@ export default function ValentineExperience({
           />
         )}
         {screen === "thankyou" && (
-          <ThankYouScreen key="thankyou" profileName={profileName} username={username} />
+          <ThankYouScreen key="thankyou" profileName={profileName} username={username} senderName={formData.name} />
         )}
       </AnimatePresence>
     </main>
