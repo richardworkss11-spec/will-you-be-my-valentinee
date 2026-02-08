@@ -76,24 +76,18 @@ export default function PublicWall({ profile, valentines }: PublicWallProps) {
             <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-600 drop-shadow-sm">
               {profile.display_name}&apos;s Wall
             </h1>
-            <p className="text-rose-800/70 text-lg font-medium">
-              Collect all your valentine&apos;s love here! 💕
+            <p className="text-rose-800/70 text-lg font-medium flex items-center justify-center flex-wrap gap-2">
+              <span>Collect all your valentine&apos;s love here! 💕</span>
+              {count > 0 && (
+                <>
+                  <span className="hidden sm:inline">•</span>
+                  <span className="bg-white/50 px-2 py-0.5 rounded-full text-base font-bold text-rose-700 shadow-sm border border-rose-100">
+                    💌 {count} Received
+                  </span>
+                </>
+              )}
             </p>
           </div>
-
-          {/* Valentine Count Badge */}
-          {count > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-rose-200 shadow-md"
-            >
-              <span className="text-lg">💌</span>
-              <span className="text-rose-700 font-bold text-lg">{count}</span>
-              <span className="text-rose-500/80 font-medium text-sm">valentine{count !== 1 ? "s" : ""} received</span>
-            </motion.div>
-          )}
 
           <motion.div
             className="flex flex-wrap items-center justify-center gap-3"
@@ -113,19 +107,32 @@ export default function PublicWall({ profile, valentines }: PublicWallProps) {
               onClick={handleShare}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              Share Wall
+            </button>
+
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(wallUrl);
+                setShared(true);
+                setTimeout(() => setShared(false), 2000);
+              }}
+              className="inline-flex items-center justify-center w-12 h-12 bg-white/80 hover:bg-white text-rose-600 font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-rose-200 backdrop-blur-sm group relative"
+              title="Copy Link"
+            >
               {shared ? (
-                <>Copied!</>
+                <span className="text-green-500 font-bold">✓</span>
               ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="18" cy="5" r="3" />
-                    <circle cx="6" cy="12" r="3" />
-                    <circle cx="18" cy="19" r="3" />
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                  </svg>
-                  Share Wall
-                </>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                </svg>
               )}
             </button>
           </motion.div>
