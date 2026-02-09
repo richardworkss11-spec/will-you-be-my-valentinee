@@ -14,8 +14,8 @@ const initialFormData: FormData = {
   song: "",
 };
 
-export function useScreenState() {
-  const [screen, setScreen] = useState<Screen>("landing");
+export function useScreenState(initialScreen: Screen = "landing") {
+  const [screen, setScreen] = useState<Screen>(initialScreen);
   const [formData, setFormData] = useState<FormData>(initialFormData);
 
   const goTo = useCallback((s: Screen) => setScreen(s), []);

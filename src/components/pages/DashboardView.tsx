@@ -4,13 +4,16 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { signOut, reactToValentine, updateAvatar, updateUsername, checkUsernameAvailability, uploadFile } from "@/lib/actions";
-import type { Profile, DashboardValentine } from "@/lib/types";
+import { signOut, reactToValentine, updateAvatar, updateUsername, checkUsernameAvailability, uploadFile, markMessagesAsRead } from "@/lib/actions";
+import type { Profile, DashboardValentine, PrivateMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import MessageCard from "@/components/dashboard/MessageCard";
 
 interface DashboardViewProps {
   profile: Profile;
   valentines: DashboardValentine[];
+  messages: PrivateMessage[];
+  unreadCount: number;
 }
 
 const REACTION_EMOJIS = ["\u2764\ufe0f", "\ud83d\ude0d", "\ud83e\udd7a", "\ud83d\udc8b", "\ud83d\udd25"];
@@ -194,13 +197,14 @@ function DummyValentineCard() {
   );
 }
 
-export default function DashboardView({ profile, valentines }: DashboardViewProps) {
+export default function DashboardView({ profile, valentines, messages, unreadCount }: DashboardViewProps) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [localAvatarUrl, setLocalAvatarUrl] = useState(profile.avatar_url);
+  const [activeTab, setActiveTab] = useState<"valentines" | "messages">("valentines");
 
   // Username editing
   const [editingUsername, setEditingUsername] = useState(false);
@@ -273,6 +277,15 @@ export default function DashboardView({ profile, valentines }: DashboardViewProp
     const timer = setTimeout(() => checkUsername(newUsername), 400);
     return () => clearTimeout(timer);
   }, [newUsername, editingUsername, checkUsername]);
+
+  // Auto-mark messages as read after 2s on the messages tab
+  useEffect(() => {
+    if (activeTab !== "messages" || unreadCount === 0) return;
+    const timer = setTimeout(() => {
+      markMessagesAsRead().then(() => router.refresh());
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [activeTab, unreadCount, router]);
 
   const handleUsernameSave = async () => {
     if (!usernameStatus.available) return;
@@ -400,32 +413,89 @@ export default function DashboardView({ profile, valentines }: DashboardViewProp
           </div>
         </motion.div>
 
-        {/* Valentines */}
+        {/* Tab Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+          className="mt-10"
         >
-          <div className="flex items-center gap-3 mb-6 mt-10">
-            <h2 className="font-heading text-2xl font-bold text-rose-900">Your Valentines</h2>
-            <span className="text-sm bg-rose-100 text-rose-500 px-2.5 py-0.5 rounded-full font-bold">{valentines.length}</span>
+          <div className="flex items-center gap-1 bg-white/60 backdrop-blur-sm rounded-2xl p-1.5 border border-rose-100 mb-6">
+            <button
+              onClick={() => setActiveTab("valentines")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer",
+                activeTab === "valentines"
+                  ? "bg-white text-rose-900 shadow-sm"
+                  : "text-rose-500/60 hover:text-rose-500"
+              )}
+            >
+              Valentines
+              <span className="text-xs bg-rose-100 text-rose-500 px-2 py-0.5 rounded-full font-bold">
+                {valentines.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab("messages")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer relative",
+                activeTab === "messages"
+                  ? "bg-white text-rose-900 shadow-sm"
+                  : "text-rose-500/60 hover:text-rose-500"
+              )}
+            >
+              Messages
+              <span className="text-xs bg-rose-100 text-rose-500 px-2 py-0.5 rounded-full font-bold">
+                {messages.length}
+              </span>
+              {unreadCount > 0 && activeTab !== "messages" && (
+                <span className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center bg-rose-500 text-white text-[10px] font-bold rounded-full px-1.5">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
           </div>
 
-          {valentines.length === 0 ? (
-            <div>
-              <p className="text-rose-500/60 text-sm mb-4 text-center">
-                No valentines yet — share your link and this is what you&apos;ll get:
-              </p>
-              <div className="max-w-sm mx-auto">
-                <DummyValentineCard />
-              </div>
-            </div>
-          ) : (
-            <div className="columns-1 md:columns-2 gap-6">
-              {valentines.map((v, i) => (
-                <DashboardValentineCard key={v.id} valentine={v} index={i} />
-              ))}
-            </div>
+          {/* Valentines Tab */}
+          {activeTab === "valentines" && (
+            <>
+              {valentines.length === 0 ? (
+                <div>
+                  <p className="text-rose-500/60 text-sm mb-4 text-center">
+                    No valentines yet — share your link and this is what you&apos;ll get:
+                  </p>
+                  <div className="max-w-sm mx-auto">
+                    <DummyValentineCard />
+                  </div>
+                </div>
+              ) : (
+                <div className="columns-1 md:columns-2 gap-6">
+                  {valentines.map((v, i) => (
+                    <DashboardValentineCard key={v.id} valentine={v} index={i} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Messages Tab */}
+          {activeTab === "messages" && (
+            <>
+              {messages.length === 0 ? (
+                <div className="text-center py-16">
+                  <span className="text-5xl mb-4 block">🤫</span>
+                  <p className="text-rose-500/60 text-sm">
+                    No private messages yet — they&apos;ll show up here when someone sends one!
+                  </p>
+                </div>
+              ) : (
+                <div className="columns-1 md:columns-2 gap-6">
+                  {messages.map((m, i) => (
+                    <MessageCard key={m.id} message={m} index={i} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </motion.div>
       </div>

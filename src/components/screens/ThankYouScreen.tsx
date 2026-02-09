@@ -9,9 +9,10 @@ interface ThankYouScreenProps {
   profileName?: string;
   username?: string;
   senderName?: string;
+  onSendMessage?: () => void;
 }
 
-export default function ThankYouScreen({ profileName, username, senderName }: ThankYouScreenProps) {
+export default function ThankYouScreen({ profileName, username, senderName, onSendMessage }: ThankYouScreenProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -239,11 +240,30 @@ export default function ThankYouScreen({ profileName, username, senderName }: Th
           </motion.div>
         )}
 
+        {onSendMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0 }}
+            className="mt-6"
+          >
+            <button
+              onClick={() => {
+                setCountdown(0);
+                onSendMessage();
+              }}
+              className="text-rose-400/80 hover:text-rose-500 text-sm font-medium transition-colors cursor-pointer"
+            >
+              Want to send a private message to {profileName}? 🤫
+            </button>
+          </motion.div>
+        )}
+
         <motion.div
           className="mt-8 text-rose-400 font-medium tracking-wide text-sm opacity-80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.0 }}
+          transition={{ delay: 1.2 }}
         >
           Spread the love this Valentine&apos;s Day! 💕
         </motion.div>

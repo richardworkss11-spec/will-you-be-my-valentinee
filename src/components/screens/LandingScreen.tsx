@@ -6,12 +6,14 @@ import DodgeButton from "@/components/ui/DodgeButton";
 
 interface LandingScreenProps {
   onYes: () => void;
+  onSendMessage?: () => void;
   profileName?: string;
   profileAvatar?: string | null;
 }
 
 export default function LandingScreen({
   onYes,
+  onSendMessage,
   profileName,
   profileAvatar,
 }: LandingScreenProps) {
@@ -126,6 +128,18 @@ export default function LandingScreen({
             <DodgeButton />
           </motion.div>
         </div>
+
+        {onSendMessage && (
+          <motion.button
+            onClick={onSendMessage}
+            className="text-rose-400/70 hover:text-rose-500 text-sm font-medium transition-colors mt-2 cursor-pointer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            Or send a private message instead 🤫
+          </motion.button>
+        )}
       </motion.div>
     </div>
   );

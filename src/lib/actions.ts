@@ -365,6 +365,71 @@ export async function updateUsername(newUsername: string) {
   return { error: null };
 }
 
+export async function submitPrivateMessage(data: {
+  profileId: string;
+  senderName: string | null;
+  message: string;
+  photoUrl: string | null;
+}) {
+  const supabase = await createClient();
+
+  const message = data.message.trim().slice(0, 5000);
+  if (!message) {
+    return { error: "Message is required" };
+  }
+
+  const senderName = data.senderName?.trim().slice(0, 100) || null;
+
+  const { error } = await supabase.from("messages").insert({
+    profile_id: data.profileId,
+    sender_name: senderName,
+    message,
+    photo_url: data.photoUrl,
+  });
+
+  if (error) {
+    console.error("[submitPrivateMessage]", error.message, error.code);
+    return { error: "Failed to send message. Please try again." };
+  }
+
+  return { error: null };
+}
+
+export async function markMessagesAsRead() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!profile) {
+    return { error: "Profile not found" };
+  }
+
+  const { error } = await supabase
+    .from("messages")
+    .update({ is_read: true })
+    .eq("profile_id", profile.id)
+    .eq("is_read", false);
+
+  if (error) {
+    console.error("[markMessagesAsRead]", error.message);
+    return { error: "Failed to mark messages as read" };
+  }
+
+  return { error: null };
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Profile, WallValentine, DashboardValentine } from "./types";
+import type { Profile, WallValentine, DashboardValentine, PrivateMessage } from "./types";
 
 export async function getCurrentUser() {
   const supabase = await createClient();
@@ -74,4 +74,30 @@ export async function getAllValentinesForOwner(
     .order("created_at", { ascending: false });
 
   return data ?? [];
+}
+
+export async function getPrivateMessages(
+  profileId: string
+): Promise<PrivateMessage[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("messages")
+    .select("id, sender_name, message, photo_url, is_read, created_at")
+    .eq("profile_id", profileId)
+    .order("created_at", { ascending: false });
+
+  return data ?? [];
+}
+
+export async function getUnreadMessageCount(
+  profileId: string
+): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("messages")
+    .select("*", { count: "exact", head: true })
+    .eq("profile_id", profileId)
+    .eq("is_read", false);
+
+  return count ?? 0;
 }

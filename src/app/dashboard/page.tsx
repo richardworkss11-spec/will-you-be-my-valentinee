@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getCurrentUser, getProfileByUserId, getAllValentinesForOwner } from "@/lib/queries";
+import { getCurrentUser, getProfileByUserId, getAllValentinesForOwner, getPrivateMessages, getUnreadMessageCount } from "@/lib/queries";
 import { redirect } from "next/navigation";
 import DashboardView from "@/components/pages/DashboardView";
 
@@ -15,7 +15,11 @@ export default async function DashboardPage() {
   const profile = await getProfileByUserId(user.id);
   if (!profile) redirect("/setup");
 
-  const valentines = await getAllValentinesForOwner(profile.id);
+  const [valentines, messages, unreadCount] = await Promise.all([
+    getAllValentinesForOwner(profile.id),
+    getPrivateMessages(profile.id),
+    getUnreadMessageCount(profile.id),
+  ]);
 
-  return <DashboardView profile={profile} valentines={valentines} />;
+  return <DashboardView profile={profile} valentines={valentines} messages={messages} unreadCount={unreadCount} />;
 }

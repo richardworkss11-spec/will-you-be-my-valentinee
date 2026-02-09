@@ -103,6 +103,14 @@ export default function PublicWall({ profile, valentines }: PublicWallProps) {
               Send a Valentine
             </Link>
 
+            <Link
+              href={`/${profile.username}?msg=1`}
+              className="inline-flex items-center gap-2 px-8 py-3 bg-white/80 hover:bg-white text-rose-600 font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-rose-200 backdrop-blur-sm"
+            >
+              <span>🤫</span>
+              Private Message
+            </Link>
+
             <button
               onClick={handleShare}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"

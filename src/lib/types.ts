@@ -1,4 +1,4 @@
-export type Screen = "landing" | "congrats" | "form" | "thankyou";
+export type Screen = "landing" | "congrats" | "form" | "thankyou" | "message" | "messageSent";
 
 export interface FormData {
   name: string;
@@ -63,5 +63,14 @@ export interface DashboardValentine {
   location: string;
   song: string;
   reaction: string | null;
+  created_at: string;
+}
+
+export interface PrivateMessage {
+  id: string;
+  sender_name: string | null;
+  message: string;
+  photo_url: string | null;
+  is_read: boolean;
   created_at: string;
 }

@@ -5,9 +5,11 @@ import HeartExplosion from "@/components/ui/HeartExplosion";
 
 interface CongratsScreenProps {
   onContinue: () => void;
+  onSendMessage: () => void;
+  profileName: string;
 }
 
-export default function CongratsScreen({ onContinue }: CongratsScreenProps) {
+export default function CongratsScreen({ onContinue, onSendMessage, profileName }: CongratsScreenProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-dvh gap-8 px-4 relative z-10 overflow-hidden">
       {/* Background Burst */}
@@ -50,27 +52,43 @@ export default function CongratsScreen({ onContinue }: CongratsScreenProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          Now make it special — one last step! ✨
+          How would you like to tell {profileName}? ✨
         </motion.p>
       </motion.div>
 
-      <motion.button
-        onClick={onContinue}
-        className="mt-4 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-10 py-4 text-xl font-bold text-white shadow-xl cursor-pointer"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <motion.span
-          className="flex items-center gap-2"
-          animate={{ scale: [1, 1.03, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      <div className="flex flex-col gap-4 w-full max-w-sm mx-auto mt-4">
+        <motion.button
+          onClick={onContinue}
+          className="rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-10 py-4 text-xl font-bold text-white shadow-xl cursor-pointer"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
         >
-          Fill in your valentine 💌
-        </motion.span>
-      </motion.button>
+          <motion.span
+            className="flex items-center justify-center gap-2"
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            Post on their wall 💌
+          </motion.span>
+        </motion.button>
+
+        <motion.button
+          onClick={onSendMessage}
+          className="rounded-full bg-white/80 backdrop-blur-sm border-2 border-rose-200 px-10 py-4 text-xl font-bold text-rose-600 shadow-lg hover:bg-white cursor-pointer transition-all"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <span className="flex items-center justify-center gap-2">
+            Send a private message 🤫
+          </span>
+        </motion.button>
+      </div>
     </div>
   );
 }
