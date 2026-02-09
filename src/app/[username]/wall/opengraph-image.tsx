@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getProfileByUsername, getWallValentines } from "@/lib/queries";
+import { getProfileByUsername } from "@/lib/queries";
 
 export const runtime = "edge";
 export const alt = "Wall of Love";
@@ -13,32 +13,7 @@ export default async function OGImage({
 }) {
   const { username } = await params;
   const profile = await getProfileByUsername(username);
-
-  if (!profile) {
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "linear-gradient(135deg, #e11d48, #ec4899)",
-            color: "white",
-            fontSize: 48,
-            fontWeight: 700,
-          }}
-        >
-          Not Found
-        </div>
-      ),
-      { ...size }
-    );
-  }
-
-  const valentines = await getWallValentines(profile.id);
-  const count = valentines.length;
+  const name = profile?.display_name || "Someone special";
 
   return new ImageResponse(
     (
@@ -54,78 +29,26 @@ export default async function OGImage({
           position: "relative",
         }}
       >
-        {/* Decorative */}
-        <div
-          style={{
-            position: "absolute",
-            top: 30,
-            right: 50,
-            fontSize: 80,
-            opacity: 0.1,
-            display: "flex",
-          }}
-        >
-          💌
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: 30,
-            left: 50,
-            fontSize: 80,
-            opacity: 0.1,
-            display: "flex",
-          }}
-        >
-          💌
-        </div>
+        {/* Corner decorations */}
+        <div style={{ position: "absolute", top: 30, right: 50, fontSize: 80, opacity: 0.1, display: "flex" }}>💌</div>
+        <div style={{ position: "absolute", bottom: 30, left: 50, fontSize: 80, opacity: 0.1, display: "flex" }}>💌</div>
 
-        {/* Avatar */}
-        {profile.avatar_url ? (
-          <img
-            src={profile.avatar_url}
-            width={120}
-            height={120}
-            style={{
-              borderRadius: "50%",
-              border: "5px solid white",
-              boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-              objectFit: "cover",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #fb7185, #f472b6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 52,
-              border: "5px solid white",
-              boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-            }}
-          >
-            💝
-          </div>
-        )}
+        {/* Heart icon */}
+        <div style={{ fontSize: 100, display: "flex", marginBottom: 16 }}>💝</div>
 
         {/* Title */}
         <div
           style={{
-            marginTop: 28,
-            fontSize: 48,
+            fontSize: 52,
             fontWeight: 700,
             color: "#9f1239",
             display: "flex",
           }}
         >
-          {profile.display_name}&apos;s Wall of Love
+          {name}&apos;s Wall of Love
         </div>
 
-        {/* Count */}
+        {/* Subtitle */}
         <div
           style={{
             marginTop: 16,
@@ -133,26 +56,22 @@ export default async function OGImage({
             color: "#be123c",
             opacity: 0.7,
             display: "flex",
-            alignItems: "center",
-            gap: 8,
           }}
         >
-          {count > 0
-            ? `${count} valentine${count !== 1 ? "s" : ""} and counting!`
-            : "Be the first to send a valentine!"}
+          See all the valentines & send your own!
         </div>
 
         {/* URL */}
         <div
           style={{
-            marginTop: 28,
+            marginTop: 32,
             fontSize: 22,
             color: "#e11d48",
             opacity: 0.5,
             display: "flex",
           }}
         >
-          💝 /{profile.username}/wall
+          will-you-be-my-valentinee.com
         </div>
       </div>
     ),
