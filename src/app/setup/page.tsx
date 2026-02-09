@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { getCurrentUser } from "@/lib/queries";
 import ProfileSetupForm from "@/components/pages/ProfileSetupForm";
+
+export const metadata: Metadata = {
+  title: "Set Up Your Profile",
+  robots: { index: false, follow: false },
+};
 
 export default async function SetupPage() {
   const user = await getCurrentUser();
