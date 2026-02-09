@@ -100,8 +100,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/icon.svg",
+    apple: "/apple-icon",
   },
   verification: {
     // Add your Google Search Console verification code here

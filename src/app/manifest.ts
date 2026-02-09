@@ -14,12 +14,17 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["entertainment", "social", "lifestyle"],
     icons: [
       {
-        src: "/icon-192.png",
+        src: "/icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+      },
+      {
+        src: "/manifest-icon-192",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        src: "/icon-512.png",
+        src: "/manifest-icon-512",
         sizes: "512x512",
         type: "image/png",
       },
